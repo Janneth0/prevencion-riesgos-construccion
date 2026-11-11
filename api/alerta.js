@@ -30,6 +30,12 @@ module.exports = async (req, res) => {
   const lesiones = lista(b.lesiones_posibles, 30);
   const probabilidad = Number(b.probabilidad_modelo);
 
+  // Email del inspector a cargo (opcional)
+  const email = String(b.email_inspector || '').trim();
+  if (email && (email.length > 120 || !/^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/.test(email))) {
+    return res.status(400).json({ ok: false, error: 'El email del inspector no es válido' });
+  }
+
   if (!TAMANOS.includes(b.tamano_empresa) || !hechos || !conclusiones || !lesiones || !hechos.length) {
     return res.status(400).json({ ok: false, error: 'Datos de la alerta inválidos' });
   }
@@ -45,6 +51,7 @@ module.exports = async (req, res) => {
     gravedad_predicha: String(b.gravedad_predicha || '').slice(0, 50),
     obra: String(b.obra || '').slice(0, 120),
     responsable: String(b.responsable || '').slice(0, 120),
+    email_inspector: email,
     fecha: String(b.fecha || '').slice(0, 40)
   };
 

@@ -106,8 +106,15 @@
     return marcos.filter(function (m) { return nombres.indexOf(m.nombre) !== -1; });
   }
 
-  function destinatarios(tamano) {
-    return tamano === 'chica' ? 'Telegram' : 'Telegram y correo electrónico';
+  function emailValido(e) {
+    const t = String(e == null ? '' : e).trim();
+    return t.length <= 120 && /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/.test(t);
+  }
+
+  // Texto de por dónde sale la alerta; si hay email, se suma el inspector a cargo
+  function destinatarios(tamano, emailInspector) {
+    const base = tamano === 'chica' ? 'Telegram' : 'Telegram y correo electrónico';
+    return emailInspector ? base + ', y además un correo al inspector a cargo (' + emailInspector + ')' : base;
   }
 
   // ---------------------------------------------------------------
@@ -153,7 +160,7 @@
   // ---------------------------------------------------------------
   function aCSV(registros) {
     const cols = [
-      ['fecha', 'Fecha'], ['obra', 'Obra'], ['responsable', 'Responsable'],
+      ['fecha', 'Fecha'], ['obra', 'Obra'], ['responsable', 'Responsable'], ['email_inspector', 'Email del inspector'],
       ['tamano_empresa', 'Tamaño de empresa'], ['hechos', 'Condiciones detectadas'],
       ['riesgos', 'Riesgos'], ['lesiones', 'Lesiones posibles'],
       ['gravedad', 'Gravedad estimada'], ['alerta', 'Alerta']
@@ -174,7 +181,7 @@
     ETIQUETAS: ETIQUETAS, HECHO_A_MARCO: HECHO_A_MARCO, TAMANOS_ALERTA: TAMANOS_ALERTA,
     etiquetaHecho: etiquetaHecho, sinGuiones: sinGuiones,
     motorInferencia: motorInferencia, hechosDeReglas: hechosDeReglas,
-    agruparHechos: agruparHechos, marcosAfectados: marcosAfectados, destinatarios: destinatarios,
+    agruparHechos: agruparHechos, marcosAfectados: marcosAfectados, destinatarios: destinatarios, emailValido: emailValido,
     vectorizar: vectorizar, predecirGravedad: predecirGravedad, aCSV: aCSV
   };
 

@@ -28,7 +28,7 @@
   .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .fields { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
   label.campo { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--muted); }
-  input[type=text], input[type=date], input[type=number], select {
+  input[type=text], input[type=date], input[type=number], input[type=email], select {
     font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; width: 100%;
   }
   fieldset.marco { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 10px; margin: 0; background: var(--card); }
@@ -76,6 +76,9 @@
         </label>
         <label class="campo">Responsable de la inspección
           <input type="text" id="responsable" maxlength="120" placeholder="Nombre y apellido">
+        </label>
+        <label class="campo">Email del inspector a cargo (opcional)
+          <input type="email" id="email-inspector" maxlength="120" placeholder="inspector@correo.com" autocomplete="email">
         </label>
         <label class="campo">Fecha
           <input type="date" id="fecha">

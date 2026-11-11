@@ -70,8 +70,14 @@
     }).join('');
   }
 
+  function emailInspector() {
+    return $('email-inspector').value.trim();
+  }
+
   function textoDestinatarios() {
-    $('destinatarios').textContent = 'La alerta se enviará por: ' + L.destinatarios($('tamano').value) + '.';
+    const email = emailInspector();
+    $('destinatarios').textContent = 'La alerta se enviará por: ' +
+      L.destinatarios($('tamano').value, L.emailValido(email) ? email : '') + '.';
   }
 
   function fechaHoy() {
@@ -82,6 +88,8 @@
     document.querySelectorAll('input[name="hecho"]').forEach(function (c) { c.checked = false; });
     $('obra').value = '';
     $('responsable').value = '';
+    $('email-inspector').value = '';
+    textoDestinatarios();
     $('fecha').value = fechaHoy();
     $('resultados').classList.add('oculto');
     aviso('aviso-form', '', '');
@@ -97,6 +105,12 @@
     if (!hechos.length) {
       $('resultados').classList.add('oculto');
       return aviso('aviso-form', 'Marcá al menos una condición observada en la obra.', 'error');
+    }
+
+    const email = emailInspector();
+    if (email && !L.emailValido(email)) {
+      $('resultados').classList.add('oculto');
+      return aviso('aviso-form', 'El email del inspector no parece válido. Revisalo o dejalo vacío.', 'error');
     }
 
     const resultados = L.motorInferencia(hechos, DATA.reglas);
@@ -141,6 +155,7 @@
         gravedad_predicha: nn.etiqueta,
         obra: $('obra').value.trim(),
         responsable: $('responsable').value.trim(),
+        email_inspector: email,
         fecha: fechaTxt
       },
       registroId: String(Date.now())
@@ -153,6 +168,7 @@
       fecha: fechaTxt,
       obra: ultima.payload.obra || '(sin nombre)',
       responsable: ultima.payload.responsable || '(sin nombre)',
+      email_inspector: email,
       tamano_empresa: tamano,
       hechos: hechos.map(L.etiquetaHecho),
       riesgos: riesgos,
@@ -185,7 +201,7 @@
       : '<div class="vacio">Las condiciones marcadas corresponden al entorno general de la obra.</div>';
 
     $('res-gravedad').textContent = nn.etiqueta + ' · confianza del modelo ' + (nn.probabilidad * 100).toFixed(1) + ' %';
-    $('res-destino').textContent = 'Empresa ' + tamano + ': la alerta se envía por ' + L.destinatarios(tamano) + '.';
+    $('res-destino').textContent = 'Empresa ' + tamano + ': la alerta se envía por ' + L.destinatarios(tamano, email) + '.';
     $('btn-enviar').textContent = 'Enviar alerta por Make';
     $('btn-enviar').disabled = false;
     aviso('aviso-envio', '', '');
@@ -264,6 +280,7 @@
     dibujarRegistro();
 
     $('tamano').addEventListener('change', textoDestinatarios);
+    $('email-inspector').addEventListener('input', textoDestinatarios);
     $('btn-evaluar').addEventListener('click', evaluar);
     $('btn-limpiar').addEventListener('click', limpiar);
     $('btn-enviar').addEventListener('click', enviarAlerta);
