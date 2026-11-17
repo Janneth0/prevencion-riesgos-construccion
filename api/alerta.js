@@ -36,6 +36,12 @@ module.exports = async (req, res) => {
     return res.status(400).json({ ok: false, error: 'El email del inspector no es válido' });
   }
 
+  // ID de Telegram del inspector a cargo (opcional, numérico)
+  const telegramId = String(b.telegram_id || '').trim();
+  if (telegramId && !/^-?\d{5,16}$/.test(telegramId)) {
+    return res.status(400).json({ ok: false, error: 'El ID de Telegram no es válido (solo números)' });
+  }
+
   if (!TAMANOS.includes(b.tamano_empresa) || !hechos || !conclusiones || !lesiones || !hechos.length) {
     return res.status(400).json({ ok: false, error: 'Datos de la alerta inválidos' });
   }
@@ -52,6 +58,7 @@ module.exports = async (req, res) => {
     obra: String(b.obra || '').slice(0, 120),
     responsable: String(b.responsable || '').slice(0, 120),
     email_inspector: email,
+    telegram_id: telegramId,
     fecha: String(b.fecha || '').slice(0, 40)
   };
 

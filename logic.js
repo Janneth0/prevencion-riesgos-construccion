@@ -112,9 +112,18 @@
   }
 
   // Texto de por dónde sale la alerta; si hay email, se suma el inspector a cargo
-  function destinatarios(tamano, emailInspector) {
+  function telegramValido(t) {
+    // ID numérico de Telegram (usuario o grupo; los grupos empiezan con -)
+    return /^-?\d{5,16}$/.test(String(t == null ? '' : t).trim());
+  }
+
+  // Texto de por dónde sale la alerta; si hay email y/o ID de Telegram, se suma el inspector a cargo
+  function destinatarios(tamano, emailInspector, telegramId) {
     const base = tamano === 'chica' ? 'Telegram' : 'Telegram y correo electrónico';
-    return emailInspector ? base + ', y además un correo al inspector a cargo (' + emailInspector + ')' : base;
+    const extras = [];
+    if (emailInspector) extras.push('un correo al inspector a cargo (' + emailInspector + ')');
+    if (telegramId) extras.push('un aviso directo al Telegram del inspector (ID ' + telegramId + ')');
+    return extras.length ? base + ', y además ' + extras.join(' y ') : base;
   }
 
   // ---------------------------------------------------------------
@@ -160,7 +169,7 @@
   // ---------------------------------------------------------------
   function aCSV(registros) {
     const cols = [
-      ['fecha', 'Fecha'], ['obra', 'Obra'], ['responsable', 'Responsable'], ['email_inspector', 'Email del inspector'],
+      ['fecha', 'Fecha'], ['obra', 'Obra'], ['responsable', 'Responsable'], ['email_inspector', 'Email del inspector'], ['telegram_id', 'ID de Telegram del inspector'],
       ['tamano_empresa', 'Tamaño de empresa'], ['hechos', 'Condiciones detectadas'],
       ['riesgos', 'Riesgos'], ['lesiones', 'Lesiones posibles'],
       ['gravedad', 'Gravedad estimada'], ['alerta', 'Alerta']
@@ -181,7 +190,7 @@
     ETIQUETAS: ETIQUETAS, HECHO_A_MARCO: HECHO_A_MARCO, TAMANOS_ALERTA: TAMANOS_ALERTA,
     etiquetaHecho: etiquetaHecho, sinGuiones: sinGuiones,
     motorInferencia: motorInferencia, hechosDeReglas: hechosDeReglas,
-    agruparHechos: agruparHechos, marcosAfectados: marcosAfectados, destinatarios: destinatarios, emailValido: emailValido,
+    agruparHechos: agruparHechos, marcosAfectados: marcosAfectados, destinatarios: destinatarios, emailValido: emailValido, telegramValido: telegramValido,
     vectorizar: vectorizar, predecirGravedad: predecirGravedad, aCSV: aCSV
   };
 

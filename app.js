@@ -74,10 +74,15 @@
     return $('email-inspector').value.trim();
   }
 
+  function telegramInspector() {
+    return $('telegram-inspector').value.trim();
+  }
+
   function textoDestinatarios() {
     const email = emailInspector();
+    const tg = telegramInspector();
     $('destinatarios').textContent = 'La alerta se enviará por: ' +
-      L.destinatarios($('tamano').value, L.emailValido(email) ? email : '') + '.';
+      L.destinatarios($('tamano').value, L.emailValido(email) ? email : '', L.telegramValido(tg) ? tg : '') + '.';
   }
 
   function fechaHoy() {
@@ -89,6 +94,7 @@
     $('obra').value = '';
     $('responsable').value = '';
     $('email-inspector').value = '';
+    $('telegram-inspector').value = '';
     textoDestinatarios();
     $('fecha').value = fechaHoy();
     $('resultados').classList.add('oculto');
@@ -111,6 +117,12 @@
     if (email && !L.emailValido(email)) {
       $('resultados').classList.add('oculto');
       return aviso('aviso-form', 'El email del inspector no parece válido. Revisalo o dejalo vacío.', 'error');
+    }
+
+    const telegram = telegramInspector();
+    if (telegram && !L.telegramValido(telegram)) {
+      $('resultados').classList.add('oculto');
+      return aviso('aviso-form', 'El ID de Telegram debe ser numérico (por ejemplo 123456789). Revisalo o dejalo vacío.', 'error');
     }
 
     const resultados = L.motorInferencia(hechos, DATA.reglas);
@@ -156,6 +168,7 @@
         obra: $('obra').value.trim(),
         responsable: $('responsable').value.trim(),
         email_inspector: email,
+        telegram_id: telegram,
         fecha: fechaTxt
       },
       registroId: String(Date.now())
@@ -169,6 +182,7 @@
       obra: ultima.payload.obra || '(sin nombre)',
       responsable: ultima.payload.responsable || '(sin nombre)',
       email_inspector: email,
+      telegram_id: telegram,
       tamano_empresa: tamano,
       hechos: hechos.map(L.etiquetaHecho),
       riesgos: riesgos,
@@ -201,7 +215,7 @@
       : '<div class="vacio">Las condiciones marcadas corresponden al entorno general de la obra.</div>';
 
     $('res-gravedad').textContent = nn.etiqueta + ' · confianza del modelo ' + (nn.probabilidad * 100).toFixed(1) + ' %';
-    $('res-destino').textContent = 'Empresa ' + tamano + ': la alerta se envía por ' + L.destinatarios(tamano, email) + '.';
+    $('res-destino').textContent = 'Empresa ' + tamano + ': la alerta se envía por ' + L.destinatarios(tamano, email, telegram) + '.';
     $('btn-enviar').textContent = 'Enviar alerta por Make';
     $('btn-enviar').disabled = false;
     aviso('aviso-envio', '', '');
@@ -281,6 +295,7 @@
 
     $('tamano').addEventListener('change', textoDestinatarios);
     $('email-inspector').addEventListener('input', textoDestinatarios);
+    $('telegram-inspector').addEventListener('input', textoDestinatarios);
     $('btn-evaluar').addEventListener('click', evaluar);
     $('btn-limpiar').addEventListener('click', limpiar);
     $('btn-enviar').addEventListener('click', enviarAlerta);
